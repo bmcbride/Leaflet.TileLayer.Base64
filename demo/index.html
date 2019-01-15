@@ -1,0 +1,216 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="description" content="Leaflet plugin supporting Base64 tiles exported from MBTiles or GeoPackage">
+    <meta name="author" content="Bryan McBride">
+    <title>Base64 Tiles</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/img/favicon-16x16.png">
+    <link rel="stylesheet" href="assets/vendor/leaflet-1.4.0/leaflet.css">
+    <link rel="stylesheet" href="assets/vendor/leaflet-locatecontrol-0.66.0/L.Control.Locate.min.css">
+    <link rel="stylesheet" href="assets/vendor/fontawesome-free-5.6.1-web/css/all.min.css">
+    <style>
+      html, body, #map {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+      }
+      .layer-loading-msg {
+        position: absolute;
+        background-color: #fff;
+        font-size: 11px;
+        text-align: center;
+        padding: 5px 5px;
+        color: #333;
+        pointer-events: none;
+        border: 2px solid rgba(0,0,0,0.2);
+        background-clip: padding-box;
+        border-radius: 5px;
+        z-index: 1000;
+        margin: auto;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        width: 100px;
+        height: 30px;
+        line-height: 30px;
+      }
+      .file-control-btn {
+        font-size: 1.4em;
+        color: #444;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+      
+  <div id="map"></div>
+    <script src="assets/vendor/leaflet-1.4.0/leaflet.js"></script>
+    <script src="assets/vendor/leaflet-locatecontrol-0.66.0/L.Control.Locate.min.js"></script>
+    <script src="assets/vendor/Leaflet.TileLayer.Base64/Leaflet.TileLayer.Base64.js"></script>
+
+    <script>
+      (function() {
+        /*** Begin custom input control for adding local file ***/
+        L.Control.AddFile = L.Control.extend({
+          onAdd: function(map) {
+            fileInput = L.DomUtil.create("input", "hidden");
+            fileInput.type = "file";
+            fileInput.accept = ".json";
+            fileInput.style.display = "none";
+            
+            fileInput.addEventListener("change", function () {
+              showLoader();
+
+              const file = fileInput.files[0];
+              const reader = new FileReader();
+
+              reader.onload = function(e) {
+                const json = JSON.parse(reader.result);
+
+                const layer = L.tileLayer.base64(json, {
+                  maxZoom: map.getMaxZoom(),
+                  tms: true,
+                  updateWhenIdle: false
+                }).once("loaded", function(e) {
+                  hideLoader();
+                  controls.layerCtrl.addOverlay(layer, file.name.replace(".json",""));
+                  map.fitBounds(layer._bounds);
+                }).addTo(map);
+              }
+
+              reader.readAsText(file);
+              this.value = "";
+            }, false);
+            
+            const div = L.DomUtil.create("div", "leaflet-bar leaflet-control");
+            div.innerHTML = "<a class='leaflet-bar-part leaflet-bar-part-single file-control-btn' title='Load file' onclick='fileInput.click();'><i id='loading-icon' class='fas fa-map'></i></a>";
+            return div
+          }
+        });
+
+        L.control.addfile = function(opts) {
+          return new L.Control.AddFile(opts);
+        }
+        /*** end custom control ***/
+
+        const map = L.map("map", {
+          zoomSnap: 0.5,
+          maxZoom: 22
+        }).fitWorld();
+        map.attributionControl.setPrefix(null);
+
+        const baseLayers = {
+          "Streets": L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.@2xpng", {
+            maxNativeZoom: 18,
+            maxZoom: map.getMaxZoom(),
+            attribution: '© <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, © <a href="https://carto.com/attribution">CARTO</a>',
+          }).addTo(map),
+          
+          "Topo": L.tileLayer("https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}", {
+            maxNativeZoom: 16,
+            maxZoom: map.getMaxZoom(),
+            attribution: "USGS",
+          }),
+
+          "Charts": L.tileLayer("https://tileservice.charts.noaa.gov/tiles/50000_1/{z}/{x}/{y}.png", {
+            maxNativeZoom: 18,
+            maxZoom: map.getMaxZoom(),
+            attribution: "NOAA",
+          }),
+
+          "None": L.tileLayer("", {
+            maxZoom: map.getMaxZoom()
+          })
+        };
+
+        const controls = {
+          layerCtrl: L.control.layers(baseLayers, null, {
+            collapsed: true,
+            position: "topright"
+          }).addTo(map),
+
+          locateCtrl: L.control.locate({
+            icon: "fa fa-crosshairs",
+            setView: "untilPan",
+            cacheLocation: true,
+            position: "topleft",
+            flyTo: false,
+            circleStyle: {
+              interactive: false
+            },
+            markerStyle: {
+              interactive: false
+            },
+            locateOptions: {
+              enableHighAccuracy: true,
+              maxZoom: 17
+            },
+            onLocationError: function(e) {
+              alert(e.message);
+            }
+          }).addTo(map),
+
+          fileCtrl: L.control.addfile({
+            position: "topleft"
+          }).addTo(map)
+        };
+
+        const overlays = {
+          chart: L.tileLayer.base64("./data/14782_1.json", {
+            maxZoom: map.getMaxZoom(),
+            tms: true,
+            updateWhenIdle: false,
+            attribution: "NOAA"
+          }).once("loading", showLoader)
+          .once("loaded", function(e) {
+            hideLoader();
+            controls.layerCtrl.addOverlay(this, "14782_1");
+            map.fitBounds(this._bounds);
+          }).addTo(map)
+        };
+
+        function showLoader() {
+          document.getElementById("loading-icon").classList.remove("fa-map");
+          document.getElementById("loading-icon").classList.add("fa-spinner", "fa-spin");
+        }
+
+        function hideLoader() {
+          document.getElementById("loading-icon").classList.remove("fa-spin", "fa-spinner");
+          document.getElementById("loading-icon").classList.add("fa-map");
+        }
+
+        function goOffline() {
+          const layers = Object.keys(baseLayers);
+          for (const layer of layers) {
+            if (layer == "None") {
+              map.addLayer(baseLayers[layer]);
+            } else {
+              map.removeLayer(baseLayers[layer]);
+            }
+          }
+        }
+
+        navigator.onLine ? null : goOffline();
+
+        window.addEventListener("offline",  function(event) {
+          goOffline()
+        });
+
+        window["map"] = map;
+      })();
+
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("service-worker.js");
+      }
+    </script>
+  </body>
+</html>
