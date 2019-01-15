@@ -1,7 +1,7 @@
 {
-  "name": "Base64 Tiles",
-  "short_name": "Base64 Tiles",
-  "description": "A simple map viewer, built for the mobile web",
+  "name": "Leaflet Base64",
+  "short_name": "Leaflet Base64",
+  "description": "Leaflet plugin for viewing Base64 encoded map tiles exported from MBTiles or GeoPackage",
   "start_url": "index.html",
   "display": "standalone",
   "background_color":  "#2196f3",
