@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
   <head>
@@ -76,14 +75,14 @@
               reader.onload = function(e) {
                 const json = JSON.parse(reader.result);
 
-                const layer = L.tileLayer.base64(json, {
+                L.tileLayer.base64(json, {
                   maxZoom: map.getMaxZoom(),
                   tms: true,
                   updateWhenIdle: false
                 }).once("loaded", function(e) {
                   hideLoader();
-                  controls.layerCtrl.addOverlay(layer, file.name.replace(".json",""));
-                  map.fitBounds(layer._bounds);
+                  controls.layerCtrl.addOverlay(this, `<span>${file.name.replace(".json","")}<a style="padding-left: 6px;" href="#" onclick="map.fitBounds(map._layers[${L.Util.stamp(this)}]._bounds); return false;"><i class="fas fa-expand-arrows-alt"></i></a></span>`);
+                  map.fitBounds(this._bounds);
                 }).addTo(map);
               }
 
@@ -165,7 +164,7 @@
         };
 
         const overlays = {
-          chart: L.tileLayer.base64("./data/14782_1.json", {
+          chart: L.tileLayer.base64("data/14782_1.json", {
             maxZoom: map.getMaxZoom(),
             tms: true,
             updateWhenIdle: false,
@@ -173,7 +172,7 @@
           }).once("loading", showLoader)
           .once("loaded", function(e) {
             hideLoader();
-            controls.layerCtrl.addOverlay(this, "14782_1");
+            controls.layerCtrl.addOverlay(this, `<span>NOAA Chart<a style="padding-left: 6px;" href="#" onclick="map.fitBounds(map._layers[${L.Util.stamp(this)}]._bounds); return false;"><i class="fas fa-expand-arrows-alt"></i></a></span>`);
             map.fitBounds(this._bounds);
           }).addTo(map)
         };

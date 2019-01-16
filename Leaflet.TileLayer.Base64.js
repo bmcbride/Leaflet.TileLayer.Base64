@@ -27,7 +27,7 @@ L.TileLayer.Base64 = L.TileLayer.extend({
   _prepareLayer: function (tiles) {
     let maxNativeZoom = 0;
     let bounds = L.latLngBounds();
-    this._base64Tiles = tiles
+    this._base64Tiles = tiles;
 
     for (let i = 0; i < tiles.length; i++) {
       if (tiles[i].zoom_level > maxNativeZoom) {
@@ -95,13 +95,13 @@ L.TileLayer.Base64 = L.TileLayer.extend({
   },
 
   createTile: function (coords) {
-    const tile = document.createElement("img");
+    const tile = document.createElement('img');
     if (this.options.tms) {
       coords.y = this._globalTileRange.max.y - coords.y;
     }
     const data = this._getTileData(this._base64Tiles, coords.z, coords.x, coords.y);
     if (data && data.tile_data) {
-      tile.src = "data:image/png;base64," + data.tile_data;
+      tile.src = 'data:image/png;base64,' + data.tile_data;
     } else {
       tile.src = L.Util.emptyImageUrl;
     }
