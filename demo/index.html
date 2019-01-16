@@ -76,7 +76,6 @@
                 const json = JSON.parse(reader.result);
 
                 L.tileLayer.base64(json, {
-                  maxZoom: map.getMaxZoom(),
                   tms: true,
                   updateWhenIdle: false
                 }).once("loaded", function(e) {
@@ -165,7 +164,6 @@
 
         const overlays = {
           chart: L.tileLayer.base64("data/14782_1.json", {
-            maxZoom: map.getMaxZoom(),
             tms: true,
             updateWhenIdle: false,
             attribution: "NOAA"
