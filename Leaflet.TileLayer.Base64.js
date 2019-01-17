@@ -1,7 +1,7 @@
 L.TileLayer.Base64 = L.TileLayer.extend({
   
   initialize: function (url, options) {
-
+    _options = options;
 		if (typeof url === 'string') {
       fetch(url).then(response => {
 				return response.json();
@@ -36,7 +36,7 @@ L.TileLayer.Base64 = L.TileLayer.extend({
     }
 
     this.options.maxNativeZoom = this.options.maxNativeZoom ? this.options.maxNativeZoom : maxNativeZoom;
-    this.options.maxZoom = this.options.maxZoom ? this.options.maxZoom : this._map.getMaxZoom();
+    this.options.maxZoom = _options.maxZoom ? _options.maxZoom : this._map.getMaxZoom();
 
     for (let i = 0; i < tiles.length; i++) {
       if (tiles[i].zoom_level == maxNativeZoom) {
