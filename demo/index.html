@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="description" content="Leaflet plugin for viewing Base64 encoded map tiles exported from MBTiles or GeoPackage">
@@ -163,7 +163,7 @@
         };
 
         const overlays = {
-          chart: L.tileLayer.base64("data/14782_1.json", {
+          chart: L.tileLayer.base64("./data/14782_1.json", {
             tms: true,
             updateWhenIdle: false,
             attribution: "NOAA"

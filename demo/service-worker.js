@@ -10,7 +10,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-const PRECACHE = 'precache-01.16.19.1';
+const PRECACHE = 'precache-01.16.19.2';
 const RUNTIME = 'runtime';
 
 // A list of local resources we always want to be cached.
@@ -32,7 +32,9 @@ const PRECACHE_URLS = [
   'assets/vendor/leaflet-1.4.0/leaflet.css',
   'assets/vendor/leaflet-1.4.0/leaflet.js',
   'assets/vendor/leaflet-locatecontrol-0.66.0/L.Control.Locate.min.css',
+  'assets/vendor/leaflet-locatecontrol-0.66.0/L.Control.Locate.min.css.map',
   'assets/vendor/leaflet-locatecontrol-0.66.0/L.Control.Locate.min.js',
+  'assets/vendor/leaflet-locatecontrol-0.66.0/L.Control.Locate.min.js.map',
   'assets/vendor/Leaflet.TileLayer.Base64/Leaflet.TileLayer.Base64.js',
   'data/14782_1.json'
 ];
